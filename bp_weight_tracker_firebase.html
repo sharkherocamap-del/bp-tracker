@@ -7,17 +7,10 @@
   <style>
     :root {
       --bg: #f5f7fb;
-      --bg-accent: #dbeafe;
       --card: #ffffff;
-      --card-soft: rgba(255, 255, 255, 0.92);
       --text: #14213d;
       --muted: #64748b;
       --line: #e2e8f0;
-      --input: #ffffff;
-      --table-head: #f8fafc;
-      --secondary: #e2e8f0;
-      --secondary-text: #0f172a;
-      --ghost-bg: transparent;
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
       --danger: #dc2626;
@@ -26,44 +19,8 @@
       --ok-bg: #d1fae5;
       --warn: #d97706;
       --warn-bg: #fef3c7;
-      --neutral-bg: #f1f5f9;
-      --toast-bg: #0f172a;
-      --toast-text: #ffffff;
-      --chart-sys: #dc2626;
-      --chart-dia: #2563eb;
-      --chart-weight: #059669;
       --shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
       --radius: 18px;
-      color-scheme: light;
-    }
-
-    [data-theme="dark"] {
-      --bg: #0f172a;
-      --bg-accent: #172554;
-      --card: #111827;
-      --card-soft: rgba(17, 24, 39, 0.92);
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --line: #334155;
-      --input: #020617;
-      --table-head: #1e293b;
-      --secondary: #334155;
-      --secondary-text: #e5e7eb;
-      --ghost-bg: #020617;
-      --danger: #f87171;
-      --danger-bg: rgba(127, 29, 29, 0.45);
-      --ok: #34d399;
-      --ok-bg: rgba(6, 95, 70, 0.45);
-      --warn: #fbbf24;
-      --warn-bg: rgba(120, 53, 15, 0.45);
-      --neutral-bg: #1e293b;
-      --toast-bg: #e5e7eb;
-      --toast-text: #0f172a;
-      --chart-sys: #f87171;
-      --chart-dia: #60a5fa;
-      --chart-weight: #34d399;
-      --shadow: 0 12px 35px rgba(0, 0, 0, 0.28);
-      color-scheme: dark;
     }
 
     * { box-sizing: border-box; }
@@ -72,7 +29,7 @@
       margin: 0;
       min-height: 100vh;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top left, var(--bg-accent) 0, transparent 30%), var(--bg);
+      background: radial-gradient(circle at top left, #dbeafe 0, transparent 30%), var(--bg);
       color: var(--text);
     }
 
@@ -114,8 +71,8 @@
     .subtitle { color: var(--muted); margin-top: 4px; font-size: 0.95rem; }
 
     .card {
-      background: var(--card-soft);
-      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(226, 232, 240, 0.85);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 18px;
@@ -151,16 +108,16 @@
 
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-dark); }
-    .btn-secondary { background: var(--secondary); color: var(--secondary-text); }
+    .btn-secondary { background: #e2e8f0; color: #0f172a; }
     .btn-danger { background: var(--danger-bg); color: var(--danger); }
-    .btn-ghost { background: var(--ghost-bg); color: var(--muted); border: 1px solid var(--line); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
     .btn-small { padding: 7px 10px; border-radius: 10px; font-size: 0.85rem; }
 
     .user-chip {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: var(--card);
+      background: white;
       border: 1px solid var(--line);
       padding: 8px 10px;
       border-radius: 999px;
@@ -172,7 +129,7 @@
       height: 30px;
       border-radius: 50%;
       object-fit: cover;
-      background: var(--bg-accent);
+      background: #dbeafe;
     }
 
     .user-chip span {
@@ -218,7 +175,7 @@
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 11px 12px;
-      background: var(--input);
+      background: white;
       color: var(--text);
       outline: none;
       transition: border 0.12s ease, box-shadow 0.12s ease;
@@ -242,8 +199,8 @@
       margin-top: 12px;
       padding: 11px 12px;
       border-radius: 12px;
-      background: rgba(37, 99, 235, 0.10);
-      color: var(--primary);
+      background: #eff6ff;
+      color: #1e40af;
       font-size: 0.86rem;
       line-height: 1.45;
     }
@@ -260,7 +217,7 @@
     }
 
     .stat-card {
-      background: var(--card);
+      background: white;
       border: 1px solid var(--line);
       border-radius: 16px;
       padding: 14px;
@@ -270,6 +227,12 @@
     .stat-label { color: var(--muted); font-size: 0.82rem; font-weight: 800; }
     .stat-value { font-size: 1.55rem; font-weight: 850; margin-top: 8px; letter-spacing: -0.03em; }
     .stat-sub { color: var(--muted); font-size: 0.8rem; margin-top: 5px; }
+
+    .metric-ok { color: var(--ok); }
+    .metric-warn { color: var(--warn); }
+    .metric-danger { color: var(--danger); }
+    .metric-neutral { color: var(--text); }
+    .metric-value { font-weight: 850; }
 
     .badge {
       display: inline-flex;
@@ -284,7 +247,7 @@
     .badge.ok { color: var(--ok); background: var(--ok-bg); }
     .badge.warn { color: var(--warn); background: var(--warn-bg); }
     .badge.danger { color: var(--danger); background: var(--danger-bg); }
-    .badge.neutral { color: var(--muted); background: var(--neutral-bg); }
+    .badge.neutral { color: var(--muted); background: #f1f5f9; }
 
     .chart-wrap {
       height: 300px;
@@ -305,7 +268,7 @@
       overflow-x: auto;
       border: 1px solid var(--line);
       border-radius: 15px;
-      background: var(--card);
+      background: white;
     }
 
     table {
@@ -323,7 +286,7 @@
     }
 
     th {
-      background: var(--table-head);
+      background: #f8fafc;
       color: var(--muted);
       font-size: 0.78rem;
       text-transform: uppercase;
@@ -346,8 +309,8 @@
       position: fixed;
       right: 18px;
       bottom: 18px;
-      background: var(--toast-bg);
-      color: var(--toast-text);
+      background: #0f172a;
+      color: white;
       padding: 12px 14px;
       border-radius: 14px;
       box-shadow: var(--shadow);
@@ -368,7 +331,7 @@
     .blocked-email {
       display: inline-block;
       padding: 4px 8px;
-      background: var(--neutral-bg);
+      background: #f1f5f9;
       border-radius: 999px;
       margin: 8px 0;
       font-weight: 800;
@@ -424,7 +387,6 @@
         <div class="user-chip">
           <img id="userPhoto" class="avatar" alt="User avatar" />
           <span id="userEmail"></span>
-          <button id="themeToggleBtn" class="btn-ghost btn-small" type="button">🌙 Dark</button>
           <button id="signOutBtn" class="btn-ghost btn-small">Sign out</button>
         </div>
       </header>
@@ -496,6 +458,7 @@
               <div class="stat-label">7-Day Avg BP</div>
               <div id="avgBp" class="stat-value">--</div>
               <div id="avgBpSub" class="stat-sub">Based on recent records</div>
+              <div id="avgBpBadge" class="badge neutral">Waiting</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Records</div>
@@ -605,25 +568,6 @@
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    const THEME_KEY = "bpWeightTheme";
-
-    const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-
-    const applyTheme = (theme) => {
-      const normalizedTheme = theme === "dark" ? "dark" : "light";
-      document.documentElement.dataset.theme = normalizedTheme;
-      localStorage.setItem(THEME_KEY, normalizedTheme);
-      const btn = document.getElementById("themeToggleBtn");
-      if (btn) btn.textContent = normalizedTheme === "dark" ? "☀️ Light" : "🌙 Dark";
-      requestAnimationFrame(() => {
-        if (!document.getElementById("appView").hidden) renderChart();
-      });
-    };
-
-    const savedTheme = localStorage.getItem(THEME_KEY);
-    const preferredTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    applyTheme(savedTheme || preferredTheme);
-
     let currentUser = null;
     let unsubscribeRecords = null;
     let records = [];
@@ -681,9 +625,6 @@
       return Number.isFinite(parsed) ? parsed : null;
     };
 
-    const hasNumber = (value) => numberOrNull(value) !== null;
-    const valueNumber = (value) => numberOrNull(value);
-
     const sortDesc = (a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`);
     const sortAsc = (a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`);
 
@@ -691,8 +632,13 @@
       if (!sys || !dia) return { text: "No BP", type: "neutral" };
       if (sys >= 180 || dia >= 120) return { text: "Very high", type: "danger" };
       if (sys >= 140 || dia >= 90) return { text: "High", type: "danger" };
-      if (sys >= 130 || dia >= 80) return { text: "Elevated", type: "warn" };
-      return { text: "Normal range", type: "ok" };
+      if (sys >= 130 || dia >= 80) return { text: "Warning", type: "warn" };
+      return { text: "OK", type: "ok" };
+    };
+
+    const applyMetricClass = (element, type) => {
+      element.classList.remove("metric-ok", "metric-warn", "metric-danger", "metric-neutral");
+      element.classList.add(`metric-${type || "neutral"}`);
     };
 
     const filteredRecords = () => {
@@ -707,8 +653,7 @@
     const startRecordsListener = () => {
       if (unsubscribeRecords) unsubscribeRecords();
 
-      // Listen directly to the collection and sort in the app.
-      // This avoids needing a Firestore composite index for orderBy(date)+orderBy(time).
+      // Listen directly and sort inside the browser to avoid needing a composite Firestore index.
       unsubscribeRecords = onSnapshot(recordsCollection(), (snapshot) => {
         records = snapshot.docs
           .map((snap) => ({ id: snap.id, ...snap.data() }))
@@ -723,8 +668,8 @@
 
     const renderStats = () => {
       const all = [...records].sort(sortDesc);
-      const bpRecords = all.filter((r) => hasNumber(r.systolic) && hasNumber(r.diastolic));
-      const weightRecords = all.filter((r) => hasNumber(r.weightKg));
+      const bpRecords = all.filter((r) => Number.isFinite(r.systolic) && Number.isFinite(r.diastolic));
+      const weightRecords = all.filter((r) => Number.isFinite(r.weightKg));
       const latestBp = bpRecords[0];
       const latestWeight = weightRecords[0];
 
@@ -732,23 +677,23 @@
       $("recordCountSub").textContent = all.length === 1 ? "Saved record" : "Saved records";
 
       if (latestBp) {
-        const sys = valueNumber(latestBp.systolic);
-        const dia = valueNumber(latestBp.diastolic);
-        $("latestBp").textContent = `${sys}/${dia}`;
+        $("latestBp").textContent = `${latestBp.systolic}/${latestBp.diastolic}`;
         $("latestBpSub").textContent = `${latestBp.date} ${latestBp.time || ""}`;
-        const status = classifyBp(sys, dia);
+        const status = classifyBp(latestBp.systolic, latestBp.diastolic);
+        applyMetricClass($("latestBp"), status.type);
         const badge = $("latestBpBadge");
         badge.textContent = status.text;
         badge.className = `badge ${status.type}`;
       } else {
         $("latestBp").textContent = "--";
+        applyMetricClass($("latestBp"), "neutral");
         $("latestBpSub").textContent = "No data yet";
         $("latestBpBadge").textContent = "Waiting";
         $("latestBpBadge").className = "badge neutral";
       }
 
       if (latestWeight) {
-        $("latestWeight").textContent = `${valueNumber(latestWeight.weightKg).toFixed(1)} kg`;
+        $("latestWeight").textContent = `${Number(latestWeight.weightKg).toFixed(1)} kg`;
         $("latestWeightSub").textContent = `${latestWeight.date} ${latestWeight.time || ""}`;
       } else {
         $("latestWeight").textContent = "--";
@@ -758,17 +703,24 @@
       const cutoff = localDate(new Date(Date.now() - 6 * 24 * 60 * 60 * 1000));
       const recentBp = bpRecords.filter((r) => r.date >= cutoff);
       if (recentBp.length) {
-        const avgSys = Math.round(recentBp.reduce((sum, r) => sum + valueNumber(r.systolic), 0) / recentBp.length);
-        const avgDia = Math.round(recentBp.reduce((sum, r) => sum + valueNumber(r.diastolic), 0) / recentBp.length);
+        const avgSys = Math.round(recentBp.reduce((sum, r) => sum + Number(r.systolic), 0) / recentBp.length);
+        const avgDia = Math.round(recentBp.reduce((sum, r) => sum + Number(r.diastolic), 0) / recentBp.length);
+        const avgStatus = classifyBp(avgSys, avgDia);
         $("avgBp").textContent = `${avgSys}/${avgDia}`;
+        applyMetricClass($("avgBp"), avgStatus.type);
         $("avgBpSub").textContent = `${recentBp.length} BP record${recentBp.length > 1 ? "s" : ""} in last 7 days`;
+        $("avgBpBadge").textContent = avgStatus.text;
+        $("avgBpBadge").className = `badge ${avgStatus.type}`;
       } else {
         $("avgBp").textContent = "--";
+        applyMetricClass($("avgBp"), "neutral");
         $("avgBpSub").textContent = "No BP records in last 7 days";
+        $("avgBpBadge").textContent = "Waiting";
+        $("avgBpBadge").className = "badge neutral";
       }
     };
 
-    const drawLine = (ctx, points, xFor, yFor, color, labelY) => {
+    const drawLine = (ctx, points, xFor, yFor, color) => {
       const valid = points.filter((p) => Number.isFinite(p.value));
       if (!valid.length) return;
 
@@ -791,10 +743,29 @@
         ctx.fillStyle = color;
         ctx.fill();
       });
+    };
 
-      ctx.fillStyle = color;
+    const drawLegend = (ctx, items, xStart, yStart, maxX) => {
       ctx.font = "12px system-ui";
-      ctx.fillText(points.name, 58, labelY);
+      ctx.textBaseline = "middle";
+      let x = xStart;
+      let y = yStart;
+      const itemGap = 18;
+      const rowGap = 18;
+
+      items.forEach((item) => {
+        const textWidth = ctx.measureText(item.label).width;
+        const itemWidth = 18 + textWidth + itemGap;
+        if (x > xStart && x + itemWidth > maxX) {
+          x = xStart;
+          y += rowGap;
+        }
+        ctx.fillStyle = item.color;
+        ctx.fillRect(x, y - 4, 10, 8);
+        ctx.fillText(item.label, x + 16, y);
+        x += itemWidth;
+      });
+      ctx.textBaseline = "alphabetic";
     };
 
     const renderChart = () => {
@@ -813,7 +784,7 @@
       ctx.clearRect(0, 0, w, h);
 
       const data = filteredRecords().sort(sortAsc);
-      const plot = { left: 48, right: 18, top: 28, bottom: 42 };
+      const plot = { left: 48, right: 18, top: 50, bottom: 42 };
       const plotW = w - plot.left - plot.right;
       const plotH = h - plot.top - plot.bottom;
 
@@ -830,9 +801,9 @@
 
       const values = [];
       data.forEach((r) => {
-        if (hasNumber(r.systolic)) values.push(valueNumber(r.systolic));
-        if (hasNumber(r.diastolic)) values.push(valueNumber(r.diastolic));
-        if (hasNumber(r.weightKg)) values.push(valueNumber(r.weightKg));
+        if (Number.isFinite(r.systolic)) values.push(Number(r.systolic));
+        if (Number.isFinite(r.diastolic)) values.push(Number(r.diastolic));
+        if (Number.isFinite(r.weightKg)) values.push(Number(r.weightKg));
       });
 
       if (!values.length) {
@@ -865,16 +836,23 @@
         ctx.fillText(String(value), 8, y + 4);
       }
 
-      const sysPoints = data.map((r, i) => ({ index: i, value: hasNumber(r.systolic) ? valueNumber(r.systolic) : NaN }));
-      sysPoints.name = "Systolic";
-      const diaPoints = data.map((r, i) => ({ index: i, value: hasNumber(r.diastolic) ? valueNumber(r.diastolic) : NaN }));
-      diaPoints.name = "Diastolic";
-      const weightPoints = data.map((r, i) => ({ index: i, value: hasNumber(r.weightKg) ? valueNumber(r.weightKg) : NaN }));
-      weightPoints.name = "Weight";
+      const sysColor = cssVar("--chart-sys") || "#dc2626";
+      const diaColor = cssVar("--chart-dia") || "#2563eb";
+      const weightColor = cssVar("--chart-weight") || "#059669";
 
-      drawLine(ctx, sysPoints, xFor, yFor, cssVar("--chart-sys") || "#dc2626", 14);
-      drawLine(ctx, diaPoints, xFor, yFor, cssVar("--chart-dia") || "#2563eb", 14);
-      drawLine(ctx, weightPoints, xFor, yFor, cssVar("--chart-weight") || "#059669", 14);
+      const sysPoints = data.map((r, i) => ({ index: i, value: Number.isFinite(r.systolic) ? Number(r.systolic) : NaN }));
+      const diaPoints = data.map((r, i) => ({ index: i, value: Number.isFinite(r.diastolic) ? Number(r.diastolic) : NaN }));
+      const weightPoints = data.map((r, i) => ({ index: i, value: Number.isFinite(r.weightKg) ? Number(r.weightKg) : NaN }));
+
+      drawLegend(ctx, [
+        { label: "Systolic", color: sysColor },
+        { label: "Diastolic", color: diaColor },
+        { label: "Weight", color: weightColor }
+      ], plot.left, 18, w - plot.right);
+
+      drawLine(ctx, sysPoints, xFor, yFor, sysColor);
+      drawLine(ctx, diaPoints, xFor, yFor, diaColor);
+      drawLine(ctx, weightPoints, xFor, yFor, weightColor);
 
       ctx.fillStyle = mutedColor;
       ctx.font = "11px system-ui";
@@ -889,16 +867,18 @@
       const body = $("recordsBody");
       const data = filteredRecords();
       body.innerHTML = data.map((r) => {
-        const bp = hasNumber(r.systolic) && hasNumber(r.diastolic)
-          ? `${valueNumber(r.systolic)}/${valueNumber(r.diastolic)}`
+        const hasBp = Number.isFinite(r.systolic) && Number.isFinite(r.diastolic);
+        const bpStatus = hasBp ? classifyBp(r.systolic, r.diastolic) : { type: "neutral" };
+        const bp = hasBp
+          ? `<strong class="metric-value metric-${bpStatus.type}">${r.systolic}/${r.diastolic}</strong>`
           : `<span class="muted">--</span>`;
-        const pulse = hasNumber(r.pulse) ? valueNumber(r.pulse) : `<span class="muted">--</span>`;
-        const weight = hasNumber(r.weightKg) ? `${valueNumber(r.weightKg).toFixed(1)} kg` : `<span class="muted">--</span>`;
+        const pulse = Number.isFinite(r.pulse) ? r.pulse : `<span class="muted">--</span>`;
+        const weight = Number.isFinite(r.weightKg) ? `${Number(r.weightKg).toFixed(1)} kg` : `<span class="muted">--</span>`;
         return `
           <tr>
             <td class="nowrap">${escapeHtml(r.date)}</td>
             <td class="nowrap">${escapeHtml(r.time || "")}</td>
-            <td class="nowrap"><strong>${bp}</strong></td>
+            <td class="nowrap">${bp}</td>
             <td>${pulse}</td>
             <td class="nowrap">${weight}</td>
             <td>${escapeHtml(r.notes || "")}</td>
@@ -939,10 +919,10 @@
       $("cancelEditBtn").hidden = false;
       $("dateInput").value = r.date || localDate();
       $("timeInput").value = r.time || localTime();
-      $("sysInput").value = hasNumber(r.systolic) ? valueNumber(r.systolic) : "";
-      $("diaInput").value = hasNumber(r.diastolic) ? valueNumber(r.diastolic) : "";
-      $("pulseInput").value = hasNumber(r.pulse) ? valueNumber(r.pulse) : "";
-      $("weightInput").value = hasNumber(r.weightKg) ? valueNumber(r.weightKg) : "";
+      $("sysInput").value = Number.isFinite(r.systolic) ? r.systolic : "";
+      $("diaInput").value = Number.isFinite(r.diastolic) ? r.diastolic : "";
+      $("pulseInput").value = Number.isFinite(r.pulse) ? r.pulse : "";
+      $("weightInput").value = Number.isFinite(r.weightKg) ? r.weightKg : "";
       $("notesInput").value = r.notes || "";
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -1078,10 +1058,6 @@
       showView("login");
     };
 
-    $("themeToggleBtn").addEventListener("click", () => {
-      const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      applyTheme(nextTheme);
-    });
     $("signOutBtn").addEventListener("click", doSignOut);
     $("blockedSignOutBtn").addEventListener("click", doSignOut);
     $("recordForm").addEventListener("submit", saveRecord);
