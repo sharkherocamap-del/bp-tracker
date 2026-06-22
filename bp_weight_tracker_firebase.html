@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blood Pressure & Weight Tracker</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #14213d;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --danger: #dc2626;
+      --danger-bg: #fee2e2;
+      --ok: #059669;
+      --ok-bg: #d1fae5;
+      --warn: #d97706;
+      --warn-bg: #fef3c7;
+      --panel: rgba(255, 255, 255, 0.92);
+      --input-bg: #ffffff;
+      --table-head: #f8fafc;
+      --chip-bg: #ffffff;
+      --hint-bg: #eff6ff;
+      --hint-text: #1e40af;
+      --toast-bg: #0f172a;
+      --toast-text: #ffffff;
+      --chart-sys: #ef4444;
+      --chart-dia: #3b82f6;
+      --chart-weight: #10b981;
+      --shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    html[data-theme="dark"] {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --line: #334155;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --danger: #f87171;
+      --danger-bg: rgba(239, 68, 68, 0.18);
+      --ok: #34d399;
+      --ok-bg: rgba(16, 185, 129, 0.18);
+      --warn: #fbbf24;
+      --warn-bg: rgba(245, 158, 11, 0.18);
+      --panel: rgba(17, 24, 39, 0.94);
+      --input-bg: #0b1220;
+      --table-head: #0b1220;
+      --chip-bg: #0b1220;
+      --hint-bg: rgba(37, 99, 235, 0.15);
+      --hint-text: #bfdbfe;
+      --toast-bg: #e5e7eb;
+      --toast-text: #0f172a;
+      --chart-sys: #fb7185;
+      --chart-dia: #60a5fa;
+      --chart-weight: #34d399;
+      --shadow: 0 12px 35px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.18) 0, transparent 30%), var(--bg);
+      color: var(--text);
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 24px 0 42px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: white;
+      font-size: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 { font-size: clamp(1.35rem, 4vw, 2rem); letter-spacing: -0.04em; }
+    .subtitle { color: var(--muted); margin-top: 4px; font-size: 0.95rem; }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .login-card {
+      max-width: 520px;
+      margin: 72px auto;
+      text-align: center;
+      padding: 28px;
+    }
+
+    .login-card .logo { margin: 0 auto 14px; }
+    .login-card h2 { font-size: 1.55rem; margin-bottom: 8px; }
+    .login-card p { color: var(--muted); line-height: 1.55; margin-bottom: 18px; }
+
+    button, input, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: var(--line); color: var(--text); }
+    .btn-danger { background: var(--danger-bg); color: var(--danger); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+    .btn-small { padding: 7px 10px; border-radius: 10px; font-size: 0.85rem; }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--chip-bg);
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      border-radius: 999px;
+      max-width: 100%;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #dbeafe;
+    }
+
+    .user-chip span {
+      display: inline-block;
+      max-width: 230px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .section-title h2 { font-size: 1.05rem; }
+    .section-title p { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    label { font-size: 0.82rem; color: var(--muted); font-weight: 700; }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      background: var(--input-bg);
+      color: var(--text);
+      outline: none;
+      transition: border 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    textarea { resize: vertical; min-height: 74px; }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .hint {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: var(--hint-bg);
+      color: var(--hint-text);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .main-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      min-height: 104px;
+    }
+
+    .stat-label { color: var(--muted); font-size: 0.82rem; font-weight: 800; }
+    .stat-value { font-size: 1.55rem; font-weight: 850; margin-top: 8px; letter-spacing: -0.03em; }
+    .stat-sub { color: var(--muted); font-size: 0.8rem; margin-top: 5px; }
+
+    .metric-ok { color: var(--ok); }
+    .metric-warn { color: var(--warn); }
+    .metric-danger { color: var(--danger); }
+    .metric-neutral { color: var(--text); }
+    .metric-value { font-weight: 850; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .badge.ok { color: var(--ok); background: var(--ok-bg); }
+    .badge.warn { color: var(--warn); background: var(--warn-bg); }
+    .badge.danger { color: var(--danger); background: var(--danger-bg); }
+    .badge.neutral { color: var(--muted); background: var(--line); }
+
+    .chart-wrap {
+      min-height: 300px;
+      position: relative;
+    }
+
+    .trend-svg {
+      width: 100%;
+      height: 300px;
+      display: block;
+      overflow: visible;
+    }
+
+    .chart-empty {
+      height: 300px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: var(--card);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--card);
+    }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: var(--table-head);
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    .nowrap { white-space: nowrap; }
+    .muted { color: var(--muted); }
+    .actions { display: flex; gap: 7px; flex-wrap: wrap; }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px;
+      display: none;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: var(--toast-bg);
+      color: var(--toast-text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 20;
+      max-width: min(420px, calc(100% - 36px));
+      line-height: 1.4;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .blocked-email {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--line);
+      border-radius: 999px;
+      margin: 8px 0;
+      font-weight: 800;
+    }
+
+    @media (max-width: 960px) {
+      .dashboard { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 18px, 1180px); padding-top: 14px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .user-chip { width: 100%; justify-content: space-between; }
+      .user-chip span { max-width: 180px; }
+      .card { padding: 14px; border-radius: 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: 1fr 1fr; }
+      .filters .field:last-child { grid-column: 1 / -1; }
+      .chart-wrap { height: 260px; }
+      .login-card { margin: 42px auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div id="loginView" class="login-card card" hidden>
+      <div class="logo">♥</div>
+      <h2>BP & Weight Tracker</h2>
+      <p>Sign in with your allowed Google account. Your records are saved in your own Firestore user area.</p>
+      <button id="signInBtn" class="btn-primary">Sign in with Google</button>
+    </div>
+
+    <div id="blockedView" class="login-card card" hidden>
+      <div class="logo">!</div>
+      <h2>Access not allowed</h2>
+      <p>This Google account is not listed in <strong>allowedUsers</strong>.</p>
+      <div id="blockedEmail" class="blocked-email"></div>
+      <p>Add a Firestore document using this exact email as the document ID, then sign in again.</p>
+      <button id="blockedSignOutBtn" class="btn-secondary">Sign out</button>
+    </div>
+
+    <section id="appView" hidden>
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">♥</div>
+          <div>
+            <h1>Blood Pressure & Weight Tracker</h1>
+            <p class="subtitle">Private per-user tracking with Firebase Google sign-in</p>
+          </div>
+        </div>
+        <div class="user-chip">
+          <img id="userPhoto" class="avatar" alt="User avatar" />
+          <span id="userEmail"></span>
+          <button id="themeToggleBtn" class="btn-ghost btn-small" type="button">Dark</button>
+          <button id="signOutBtn" class="btn-ghost btn-small">Sign out</button>
+        </div>
+      </header>
+
+      <div class="dashboard">
+        <aside class="card">
+          <div class="section-title">
+            <div>
+              <h2 id="formTitle">Add record</h2>
+              <p>Enter BP, weight, or both.</p>
+            </div>
+          </div>
+
+          <form id="recordForm">
+            <div class="form-grid">
+              <div class="field">
+                <label for="dateInput">Date</label>
+                <input id="dateInput" type="date" required />
+              </div>
+              <div class="field">
+                <label for="timeInput">Time</label>
+                <input id="timeInput" type="time" required />
+              </div>
+              <div class="field">
+                <label for="sysInput">Systolic</label>
+                <input id="sysInput" type="number" inputmode="numeric" min="50" max="260" placeholder="120" />
+              </div>
+              <div class="field">
+                <label for="diaInput">Diastolic</label>
+                <input id="diaInput" type="number" inputmode="numeric" min="30" max="180" placeholder="80" />
+              </div>
+              <div class="field">
+                <label for="pulseInput">Pulse</label>
+                <input id="pulseInput" type="number" inputmode="numeric" min="30" max="220" placeholder="72" />
+              </div>
+              <div class="field">
+                <label for="weightInput">Weight kg</label>
+                <input id="weightInput" type="number" inputmode="decimal" step="0.1" min="20" max="350" placeholder="70.5" />
+              </div>
+              <div class="field full">
+                <label for="notesInput">Notes</label>
+                <textarea id="notesInput" maxlength="500" placeholder="Morning, before coffee, after exercise..."></textarea>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button id="saveBtn" type="submit" class="btn-primary">Save record</button>
+              <button id="cancelEditBtn" type="button" class="btn-secondary" hidden>Cancel edit</button>
+            </div>
+          </form>
+
+          <div class="hint">Tip: BP requires both systolic and diastolic values. Weight can be saved alone.</div>
+        </aside>
+
+        <div class="main-grid">
+          <section class="stats">
+            <div class="stat-card">
+              <div class="stat-label">Latest BP</div>
+              <div id="latestBp" class="stat-value">--</div>
+              <div id="latestBpSub" class="stat-sub">No data yet</div>
+              <div id="latestBpBadge" class="badge neutral">Waiting</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Latest Weight</div>
+              <div id="latestWeight" class="stat-value">--</div>
+              <div id="latestWeightSub" class="stat-sub">No data yet</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">7-Day Avg BP</div>
+              <div id="avgBp" class="stat-value">--</div>
+              <div id="avgBpSub" class="stat-sub">Based on recent records</div>
+              <div id="avgBpBadge" class="badge neutral">Waiting</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Records</div>
+              <div id="recordCount" class="stat-value">0</div>
+              <div id="recordCountSub" class="stat-sub">Saved records</div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-title">
+              <div>
+                <h2>Trend</h2>
+                <p>Systolic, diastolic, and weight trend from filtered records.</p>
+              </div>
+              <button id="exportBtn" class="btn-secondary btn-small">Export CSV</button>
+            </div>
+            <div class="chart-wrap">
+              <div id="trendChart"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-title">
+              <div>
+                <h2>History</h2>
+                <p>Filter, edit, or delete your records.</p>
+              </div>
+            </div>
+
+            <div class="filters">
+              <div class="field">
+                <label for="fromFilter">From</label>
+                <input id="fromFilter" type="date" />
+              </div>
+              <div class="field">
+                <label for="toFilter">To</label>
+                <input id="toFilter" type="date" />
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button id="clearFilterBtn" class="btn-secondary" type="button">Clear filter</button>
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button id="refreshDefaultsBtn" class="btn-ghost" type="button">Today/time now</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>BP</th>
+                    <th>Pulse</th>
+                    <th>Weight</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="recordsBody"></tbody>
+              </table>
+              <div id="emptyState" class="empty">No records to show.</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      deleteField,
+      onSnapshot,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAWPI2O-XhIaAEeREIzrx6iiVQ2-4enceY",
+      authDomain: "bp-tracker-5ac4f.firebaseapp.com",
+      projectId: "bp-tracker-5ac4f",
+      storageBucket: "bp-tracker-5ac4f.firebasestorage.app",
+      messagingSenderId: "695196646602",
+      appId: "1:695196646602:web:4480d1c3ed3113a943c833"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    let currentUser = null;
+    let unsubscribeRecords = null;
+    let records = [];
+    let editingId = null;
+
+    const $ = (id) => document.getElementById(id);
+    const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    const THEME_KEY = "bpWeightTrackerTheme";
+
+    const applyTheme = (theme) => {
+      const safeTheme = theme === "dark" ? "dark" : "light";
+      document.documentElement.dataset.theme = safeTheme;
+      localStorage.setItem(THEME_KEY, safeTheme);
+      const btn = $("themeToggleBtn");
+      if (btn) btn.textContent = safeTheme === "dark" ? "Light" : "Dark";
+      requestAnimationFrame(() => {
+        try {
+          if (views?.app && !views.app.hidden) renderChart();
+        } catch (_) {
+          // renderChart/views are not initialized during the first theme setup.
+        }
+      });
+    };
+
+    applyTheme(localStorage.getItem(THEME_KEY) || "light");
+
+    const views = {
+      login: $("loginView"),
+      blocked: $("blockedView"),
+      app: $("appView")
+    };
+
+    const showView = (name) => {
+      Object.entries(views).forEach(([key, el]) => {
+        el.hidden = key !== name;
+      });
+    };
+
+    const showToast = (message) => {
+      const toast = $("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2600);
+    };
+
+    const localDate = (date = new Date()) => {
+      const d = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return d.toISOString().slice(0, 10);
+    };
+
+    const localTime = (date = new Date()) => {
+      const d = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return d.toISOString().slice(11, 16);
+    };
+
+    const setDateTimeDefaults = () => {
+      $("dateInput").value = localDate();
+      $("timeInput").value = localTime();
+    };
+
+    const recordsCollection = () => collection(db, "users", currentUser.uid, "healthRecords");
+    const recordDocument = (id) => doc(db, "users", currentUser.uid, "healthRecords", id);
+
+    const escapeHtml = (value = "") => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const numberOrNull = (value) => {
+      if (value === "" || value === null || value === undefined) return null;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const sortDesc = (a, b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`);
+    const sortAsc = (a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`);
+
+    const classifyBp = (sys, dia) => {
+      if (!sys || !dia) return { text: "No BP", type: "neutral" };
+      if (sys >= 180 || dia >= 120) return { text: "Very high", type: "danger" };
+      if (sys >= 140 || dia >= 90) return { text: "High", type: "danger" };
+      if (sys >= 130 || dia >= 80) return { text: "Warning", type: "warn" };
+      return { text: "OK", type: "ok" };
+    };
+
+    const applyMetricClass = (element, type) => {
+      element.classList.remove("metric-ok", "metric-warn", "metric-danger", "metric-neutral");
+      element.classList.add(`metric-${type || "neutral"}`);
+    };
+
+    const filteredRecords = () => {
+      const from = $("fromFilter").value;
+      const to = $("toFilter").value;
+      return records
+        .filter((r) => !from || r.date >= from)
+        .filter((r) => !to || r.date <= to)
+        .sort(sortDesc);
+    };
+
+    const normalizeRecord = (id, data) => ({
+      id,
+      ...data,
+      systolic: numberOrNull(data.systolic),
+      diastolic: numberOrNull(data.diastolic),
+      pulse: numberOrNull(data.pulse),
+      weightKg: numberOrNull(data.weightKg),
+      date: data.date || "",
+      time: data.time || "",
+      notes: data.notes || ""
+    });
+
+    const startRecordsListener = () => {
+      if (unsubscribeRecords) unsubscribeRecords();
+
+      // Listen to the whole user-owned collection and sort in the browser.
+      // This avoids the Firestore composite-index error from orderBy(date)+orderBy(time).
+      unsubscribeRecords = onSnapshot(recordsCollection(), (snapshot) => {
+        records = snapshot.docs
+          .map((snap) => normalizeRecord(snap.id, snap.data()))
+          .sort(sortDesc);
+        renderAll();
+      }, (error) => {
+        console.error(error);
+        showToast("Cannot load records. Check Firestore rules and allowedUsers.");
+      });
+    };
+
+    const renderStats = () => {
+      const all = [...records].sort(sortDesc);
+      const bpRecords = all.filter((r) => Number.isFinite(r.systolic) && Number.isFinite(r.diastolic));
+      const weightRecords = all.filter((r) => Number.isFinite(r.weightKg));
+      const latestBp = bpRecords[0];
+      const latestWeight = weightRecords[0];
+
+      $("recordCount").textContent = all.length;
+      $("recordCountSub").textContent = all.length === 1 ? "Saved record" : "Saved records";
+
+      if (latestBp) {
+        $("latestBp").textContent = `${latestBp.systolic}/${latestBp.diastolic}`;
+        $("latestBpSub").textContent = `${latestBp.date} ${latestBp.time || ""}`;
+        const status = classifyBp(latestBp.systolic, latestBp.diastolic);
+        applyMetricClass($("latestBp"), status.type);
+        const badge = $("latestBpBadge");
+        badge.textContent = status.text;
+        badge.className = `badge ${status.type}`;
+      } else {
+        $("latestBp").textContent = "--";
+        applyMetricClass($("latestBp"), "neutral");
+        $("latestBpSub").textContent = "No data yet";
+        $("latestBpBadge").textContent = "Waiting";
+        $("latestBpBadge").className = "badge neutral";
+      }
+
+      if (latestWeight) {
+        $("latestWeight").textContent = `${Number(latestWeight.weightKg).toFixed(1)} kg`;
+        $("latestWeightSub").textContent = `${latestWeight.date} ${latestWeight.time || ""}`;
+      } else {
+        $("latestWeight").textContent = "--";
+        $("latestWeightSub").textContent = "No data yet";
+      }
+
+      const cutoff = localDate(new Date(Date.now() - 6 * 24 * 60 * 60 * 1000));
+      const recentBp = bpRecords.filter((r) => r.date >= cutoff);
+      if (recentBp.length) {
+        const avgSys = Math.round(recentBp.reduce((sum, r) => sum + Number(r.systolic), 0) / recentBp.length);
+        const avgDia = Math.round(recentBp.reduce((sum, r) => sum + Number(r.diastolic), 0) / recentBp.length);
+        const avgStatus = classifyBp(avgSys, avgDia);
+        $("avgBp").textContent = `${avgSys}/${avgDia}`;
+        applyMetricClass($("avgBp"), avgStatus.type);
+        $("avgBpSub").textContent = `${recentBp.length} BP record${recentBp.length > 1 ? "s" : ""} in last 7 days`;
+        $("avgBpBadge").textContent = avgStatus.text;
+        $("avgBpBadge").className = `badge ${avgStatus.type}`;
+      } else {
+        $("avgBp").textContent = "--";
+        applyMetricClass($("avgBp"), "neutral");
+        $("avgBpSub").textContent = "No BP records in last 7 days";
+        $("avgBpBadge").textContent = "Waiting";
+        $("avgBpBadge").className = "badge neutral";
+      }
+    };
+
+    const svgText = (text) => escapeHtml(String(text ?? ""));
+
+    const svgPointString = (points, xFor, yFor) => points
+      .filter((p) => Number.isFinite(p.value))
+      .map((p) => `${xFor(p.index).toFixed(1)},${yFor(p.value).toFixed(1)}`)
+      .join(" ");
+
+    const renderChart = () => {
+      const chart = $("trendChart");
+      const data = filteredRecords().sort(sortAsc);
+
+      const mutedColor = cssVar("--muted") || "#64748b";
+      const lineColor = cssVar("--line") || "#e2e8f0";
+      const textColor = cssVar("--text") || "#14213d";
+      const sysColor = cssVar("--chart-sys") || "#dc2626";
+      const diaColor = cssVar("--chart-dia") || "#2563eb";
+      const weightColor = cssVar("--chart-weight") || "#059669";
+
+      if (!data.length) {
+        chart.innerHTML = `<div class="chart-empty">No data to draw.<br>Add a record or clear the date filter.</div>`;
+        return;
+      }
+
+      const values = [];
+      data.forEach((r) => {
+        if (Number.isFinite(r.systolic)) values.push(Number(r.systolic));
+        if (Number.isFinite(r.diastolic)) values.push(Number(r.diastolic));
+        if (Number.isFinite(r.weightKg)) values.push(Number(r.weightKg));
+      });
+
+      if (!values.length) {
+        chart.innerHTML = `<div class="chart-empty">No numeric values to draw.</div>`;
+        return;
+      }
+
+      let min = Math.min(...values);
+      let max = Math.max(...values);
+      if (min === max) { min -= 10; max += 10; }
+      const pad = Math.max(5, (max - min) * 0.12);
+      min = Math.floor(min - pad);
+      max = Math.ceil(max + pad);
+
+      const vbW = 900;
+      const vbH = 300;
+      const plot = { left: 58, right: 24, top: 58, bottom: 42 };
+      const plotW = vbW - plot.left - plot.right;
+      const plotH = vbH - plot.top - plot.bottom;
+
+      const xFor = (i) => plot.left + (data.length === 1 ? plotW / 2 : (i / (data.length - 1)) * plotW);
+      const yFor = (value) => plot.top + ((max - value) / (max - min)) * plotH;
+
+      const ticks = Array.from({ length: 5 }, (_, i) => {
+        const y = plot.top + (i / 4) * plotH;
+        const value = Math.round(max - (i / 4) * (max - min));
+        return `<line x1="${plot.left}" y1="${y.toFixed(1)}" x2="${vbW - plot.right}" y2="${y.toFixed(1)}" stroke="${lineColor}" stroke-width="1" />
+                <text x="14" y="${(y + 4).toFixed(1)}" fill="${mutedColor}" font-size="12">${value}</text>`;
+      }).join("");
+
+      const sysPoints = data.map((r, i) => ({ index: i, value: Number.isFinite(r.systolic) ? Number(r.systolic) : NaN }));
+      const diaPoints = data.map((r, i) => ({ index: i, value: Number.isFinite(r.diastolic) ? Number(r.diastolic) : NaN }));
+      const weightPoints = data.map((r, i) => ({ index: i, value: Number.isFinite(r.weightKg) ? Number(r.weightKg) : NaN }));
+
+      const series = [
+        { label: "Systolic", color: sysColor, points: sysPoints, lx: 58 },
+        { label: "Diastolic", color: diaColor, points: diaPoints, lx: 158 },
+        { label: "Weight", color: weightColor, points: weightPoints, lx: 258 }
+      ];
+
+      const makeSeriesSvg = (item) => {
+        const valid = item.points.filter((p) => Number.isFinite(p.value));
+        if (!valid.length) return "";
+        const polyline = valid.length > 1
+          ? `<polyline points="${svgPointString(item.points, xFor, yFor)}" fill="none" stroke="${item.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />`
+          : "";
+        const dots = valid.map((p) => `<circle cx="${xFor(p.index).toFixed(1)}" cy="${yFor(p.value).toFixed(1)}" r="4" fill="${item.color}" />`).join("");
+        return `${polyline}${dots}`;
+      };
+
+      const legend = series.map((item) => `
+        <g transform="translate(${item.lx},24)">
+          <circle cx="0" cy="0" r="5" fill="${item.color}" />
+          <text x="12" y="4" fill="${textColor}" font-size="13" font-weight="700">${item.label}</text>
+        </g>
+      `).join("");
+
+      const first = data[0]?.date || "";
+      const last = data[data.length - 1]?.date || "";
+      const xLabels = data.length === 1
+        ? `<text x="${xFor(0)}" y="${vbH - 14}" fill="${mutedColor}" font-size="12" text-anchor="middle">${svgText(first)}</text>`
+        : `<text x="${plot.left}" y="${vbH - 14}" fill="${mutedColor}" font-size="12">${svgText(first)}</text>
+           <text x="${vbW - plot.right}" y="${vbH - 14}" fill="${mutedColor}" font-size="12" text-anchor="end">${svgText(last)}</text>`;
+
+      chart.innerHTML = `
+        <svg class="trend-svg" viewBox="0 0 ${vbW} ${vbH}" role="img" aria-label="Blood pressure and weight trend chart">
+          ${legend}
+          ${ticks}
+          <line x1="${plot.left}" y1="${plot.top}" x2="${plot.left}" y2="${vbH - plot.bottom}" stroke="${lineColor}" stroke-width="1" />
+          <line x1="${plot.left}" y1="${vbH - plot.bottom}" x2="${vbW - plot.right}" y2="${vbH - plot.bottom}" stroke="${lineColor}" stroke-width="1" />
+          ${series.map(makeSeriesSvg).join("")}
+          ${xLabels}
+        </svg>
+      `;
+    };
+
+    const renderTable = () => {
+      const body = $("recordsBody");
+      const data = filteredRecords();
+      body.innerHTML = data.map((r) => {
+        const hasBp = Number.isFinite(r.systolic) && Number.isFinite(r.diastolic);
+        const bpStatus = hasBp ? classifyBp(r.systolic, r.diastolic) : { type: "neutral" };
+        const bp = hasBp
+          ? `<strong class="metric-value metric-${bpStatus.type}">${r.systolic}/${r.diastolic}</strong>`
+          : `<span class="muted">--</span>`;
+        const pulse = Number.isFinite(r.pulse) ? r.pulse : `<span class="muted">--</span>`;
+        const weight = Number.isFinite(r.weightKg) ? `${Number(r.weightKg).toFixed(1)} kg` : `<span class="muted">--</span>`;
+        return `
+          <tr>
+            <td class="nowrap">${escapeHtml(r.date)}</td>
+            <td class="nowrap">${escapeHtml(r.time || "")}</td>
+            <td class="nowrap">${bp}</td>
+            <td>${pulse}</td>
+            <td class="nowrap">${weight}</td>
+            <td>${escapeHtml(r.notes || "")}</td>
+            <td>
+              <div class="actions">
+                <button class="btn-secondary btn-small" data-action="edit" data-id="${r.id}">Edit</button>
+                <button class="btn-danger btn-small" data-action="delete" data-id="${r.id}">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      $("emptyState").style.display = data.length ? "none" : "block";
+    };
+
+    const renderAll = () => {
+      renderStats();
+      renderTable();
+      renderChart();
+    };
+
+    const resetForm = () => {
+      editingId = null;
+      $("formTitle").textContent = "Add record";
+      $("saveBtn").textContent = "Save record";
+      $("cancelEditBtn").hidden = true;
+      $("recordForm").reset();
+      setDateTimeDefaults();
+    };
+
+    const startEdit = (id) => {
+      const r = records.find((item) => item.id === id);
+      if (!r) return;
+      editingId = id;
+      $("formTitle").textContent = "Edit record";
+      $("saveBtn").textContent = "Update record";
+      $("cancelEditBtn").hidden = false;
+      $("dateInput").value = r.date || localDate();
+      $("timeInput").value = r.time || localTime();
+      $("sysInput").value = Number.isFinite(r.systolic) ? r.systolic : "";
+      $("diaInput").value = Number.isFinite(r.diastolic) ? r.diastolic : "";
+      $("pulseInput").value = Number.isFinite(r.pulse) ? r.pulse : "";
+      $("weightInput").value = Number.isFinite(r.weightKg) ? r.weightKg : "";
+      $("notesInput").value = r.notes || "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const deleteRecord = async (id) => {
+      const r = records.find((item) => item.id === id);
+      const label = r ? `${r.date} ${r.time || ""}` : "this record";
+      if (!confirm(`Delete ${label}?`)) return;
+      await deleteDoc(recordDocument(id));
+      showToast("Record deleted.");
+    };
+
+    const buildPayloadFromForm = () => {
+      const systolic = numberOrNull($("sysInput").value);
+      const diastolic = numberOrNull($("diaInput").value);
+      const pulse = numberOrNull($("pulseInput").value);
+      const weightKg = numberOrNull($("weightInput").value);
+      const hasAnyBp = systolic !== null || diastolic !== null;
+      const hasFullBp = systolic !== null && diastolic !== null;
+      const hasWeight = weightKg !== null;
+
+      if (hasAnyBp && !hasFullBp) {
+        throw new Error("Please enter both systolic and diastolic BP.");
+      }
+      if (!hasFullBp && !hasWeight) {
+        throw new Error("Please enter BP, weight, or both.");
+      }
+
+      const payload = {
+        date: $("dateInput").value,
+        time: $("timeInput").value,
+        notes: $("notesInput").value.trim(),
+        ownerUid: currentUser.uid,
+        ownerEmail: currentUser.email,
+        updatedAt: serverTimestamp()
+      };
+
+      if (hasFullBp) {
+        payload.systolic = systolic;
+        payload.diastolic = diastolic;
+      } else if (editingId) {
+        payload.systolic = deleteField();
+        payload.diastolic = deleteField();
+      }
+
+      if (pulse !== null) payload.pulse = pulse;
+      else if (editingId) payload.pulse = deleteField();
+
+      if (hasWeight) payload.weightKg = weightKg;
+      else if (editingId) payload.weightKg = deleteField();
+
+      return payload;
+    };
+
+    const saveRecord = async (event) => {
+      event.preventDefault();
+      try {
+        $("saveBtn").disabled = true;
+        const payload = buildPayloadFromForm();
+        if (editingId) {
+          await updateDoc(recordDocument(editingId), payload);
+          showToast("Record updated.");
+        } else {
+          payload.createdAt = serverTimestamp();
+          await addDoc(recordsCollection(), payload);
+          showToast("Record saved.");
+        }
+        resetForm();
+      } catch (error) {
+        console.error(error);
+        showToast(error.message || "Could not save record.");
+      } finally {
+        $("saveBtn").disabled = false;
+      }
+    };
+
+    const exportCsv = () => {
+      const data = filteredRecords();
+      if (!data.length) {
+        showToast("No records to export.");
+        return;
+      }
+      const headers = ["date", "time", "systolic", "diastolic", "pulse", "weightKg", "notes"];
+      const rows = data.map((r) => headers.map((h) => {
+        const value = r[h] ?? "";
+        return `"${String(value).replaceAll('"', '""')}"`;
+      }).join(","));
+      const csv = "\uFEFF" + headers.join(",") + "\n" + rows.join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `bp_weight_records_${localDate()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    };
+
+    const checkAllowedUser = async (user) => {
+      const email = user.email || "";
+      const allowSnap = await getDoc(doc(db, "allowedUsers", email));
+      if (!allowSnap.exists()) {
+        if (unsubscribeRecords) unsubscribeRecords();
+        $("blockedEmail").textContent = email || "No email found";
+        showView("blocked");
+        return;
+      }
+
+      currentUser = user;
+      $("userEmail").textContent = email;
+      $("userPhoto").src = user.photoURL || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='32' fill='%23dbeafe'/%3E%3Ctext x='50%25' y='56%25' text-anchor='middle' font-size='28' fill='%232563eb' font-family='Arial'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+      showView("app");
+      resetForm();
+      startRecordsListener();
+    };
+
+    $("signInBtn").addEventListener("click", async () => {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        console.error(error);
+        showToast(error.message || "Google sign-in failed.");
+      }
+    });
+
+    const doSignOut = async () => {
+      if (unsubscribeRecords) unsubscribeRecords();
+      unsubscribeRecords = null;
+      currentUser = null;
+      records = [];
+      await signOut(auth);
+      showView("login");
+    };
+
+    $("themeToggleBtn").addEventListener("click", () => {
+      const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      applyTheme(nextTheme);
+    });
+
+    $("signOutBtn").addEventListener("click", doSignOut);
+    $("blockedSignOutBtn").addEventListener("click", doSignOut);
+    $("recordForm").addEventListener("submit", saveRecord);
+    $("cancelEditBtn").addEventListener("click", resetForm);
+    $("exportBtn").addEventListener("click", exportCsv);
+    $("refreshDefaultsBtn").addEventListener("click", setDateTimeDefaults);
+
+    $("recordsBody").addEventListener("click", async (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const { action, id } = button.dataset;
+      try {
+        if (action === "edit") startEdit(id);
+        if (action === "delete") await deleteRecord(id);
+      } catch (error) {
+        console.error(error);
+        showToast(error.message || "Action failed.");
+      }
+    });
+
+    $("fromFilter").addEventListener("change", renderAll);
+    $("toFilter").addEventListener("change", renderAll);
+    $("clearFilterBtn").addEventListener("click", () => {
+      $("fromFilter").value = "";
+      $("toFilter").value = "";
+      renderAll();
+    });
+
+    window.addEventListener("resize", () => requestAnimationFrame(renderChart));
+
+    onAuthStateChanged(auth, async (user) => {
+      try {
+        if (!user) {
+          if (unsubscribeRecords) unsubscribeRecords();
+          showView("login");
+          return;
+        }
+        await checkAllowedUser(user);
+      } catch (error) {
+        console.error(error);
+        showToast("Access check failed. Check rules and allowedUsers setup.");
+        showView("login");
+      }
+    });
+  </script>
+</body>
+</html>
