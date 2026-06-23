@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Blood Pressure & Weight Tracker</title>
+<style>
+  :root{
+    --bg:#f5f7fb;--card:#ffffff;--panel:rgba(255,255,255,.94);--text:#10213f;--muted:#64748b;--line:#e2e8f0;--input:#ffffff;
+    --primary:#2563eb;--primary2:#1d4ed8;--secondary:#e2e8f0;--secondaryText:#0f172a;
+    --danger:#dc2626;--dangerBg:#fee2e2;--warn:#d97706;--warnBg:#fef3c7;--ok:#059669;--okBg:#d1fae5;
+    --chartSys:#ef4444;--chartDia:#3b82f6;--chartWgt:#10b981;--shadow:0 12px 32px rgba(15,23,42,.08);--radius:18px;color-scheme:light;
+  }
+  html[data-theme="dark"]{
+    --bg:#0f172a;--card:#111827;--panel:rgba(17,24,39,.94);--text:#e5e7eb;--muted:#94a3b8;--line:#334155;--input:#020617;
+    --primary:#3b82f6;--primary2:#2563eb;--secondary:#334155;--secondaryText:#e5e7eb;
+    --danger:#f87171;--dangerBg:rgba(127,29,29,.45);--warn:#fbbf24;--warnBg:rgba(120,53,15,.45);--ok:#34d399;--okBg:rgba(6,95,70,.45);
+    --chartSys:#fb7185;--chartDia:#60a5fa;--chartWgt:#34d399;--shadow:0 12px 32px rgba(0,0,0,.28);color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top left,rgba(37,99,235,.16),transparent 34%),var(--bg);color:var(--text)}
+  .shell{width:min(1180px,calc(100% - 28px));margin:0 auto;padding:24px 0 42px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}.logo{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;font-size:24px;box-shadow:var(--shadow);flex:0 0 auto}
+  h1,h2,p{margin:0}h1{font-size:clamp(1.35rem,4vw,2rem);letter-spacing:-.04em;line-height:1.08}.subtitle,.small{color:var(--muted);font-size:.93rem;line-height:1.42;margin-top:4px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.login-card{max-width:520px;margin:72px auto;text-align:center;padding:28px}.login-card .logo{margin:0 auto 14px}.login-card p{color:var(--muted);line-height:1.55;margin:8px 0 18px}
+  button,input,textarea{font:inherit}button{border:0;border-radius:12px;padding:11px 14px;cursor:pointer;font-weight:800;transition:transform .12s ease,background .12s ease}button:hover{transform:translateY(-1px)}button:active{transform:translateY(0)}button:disabled{opacity:.6;cursor:not-allowed;transform:none}.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary2)}.btn-secondary{background:var(--secondary);color:var(--secondaryText)}.btn-danger{background:var(--dangerBg);color:var(--danger)}.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}.btn-small{padding:8px 11px;border-radius:10px;font-size:.85rem}
+  .user-chip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 10px;max-width:100%}.avatar{width:30px;height:30px;border-radius:50%;object-fit:cover}.user-chip span{max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:.9rem}
+  .layout{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}.side,.main{display:grid;gap:14px}.section-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}.form-grid,.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:7px}.full{grid-column:1/-1}label{color:var(--muted);font-size:.82rem;font-weight:850}input,textarea{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:var(--input);color:var(--text);outline:none}input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}textarea{min-height:74px;resize:vertical}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.hint{margin-top:12px;padding:11px 12px;border-radius:12px;background:rgba(37,99,235,.10);color:var(--primary);font-size:.86rem;line-height:1.45}.settings-note{margin:8px 0 12px;color:var(--muted);font-size:.84rem;line-height:1.45}.preview{display:grid;gap:6px;margin-top:12px;color:var(--muted);font-size:.84rem}.preview div{display:flex;gap:8px;align-items:center}.dash{width:34px;border-top:2px dashed currentColor}.dash.warn{color:var(--warn)}.dash.red{color:var(--danger)}
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;min-height:104px}.stat-label{color:var(--muted);font-size:.82rem;font-weight:850}.stat-value{font-size:1.55rem;font-weight:900;letter-spacing:-.03em;margin-top:8px}.stat-sub{color:var(--muted);font-size:.8rem;margin-top:5px}.metric-ok{color:var(--ok)}.metric-warn{color:var(--warn)}.metric-danger{color:var(--danger)}.metric-neutral{color:var(--text)}.metric-value{font-weight:850}.badge{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:.75rem;font-weight:850;margin-top:8px}.badge.ok{background:var(--okBg);color:var(--ok)}.badge.warn{background:var(--warnBg);color:var(--warn)}.badge.danger{background:var(--dangerBg);color:var(--danger)}.badge.neutral{background:var(--secondary);color:var(--muted)}
+  .chart-card{overflow:visible}.chart-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}.chart-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.range-toggle{display:inline-flex;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--card);gap:4px}.range-btn{padding:7px 11px;border-radius:999px;background:transparent;color:var(--muted);font-size:.84rem}.range-btn.active{background:var(--primary);color:#fff}.chart-wrap{position:relative;min-height:400px;overflow:visible}.trend-svg{display:block;width:100%;height:390px;overflow:visible}.chart-empty{height:330px;display:grid;place-items:center;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px;background:var(--card);padding:16px}.chart-tooltip{position:absolute;left:0;top:0;transform:translate(-50%,calc(-100% - 12px));background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:var(--shadow);z-index:9;font-size:.82rem;line-height:1.45;max-width:280px;min-width:205px;pointer-events:none;opacity:0}.chart-tooltip.show{opacity:1}.chart-tooltip strong{display:block;margin-bottom:3px}.point-hit{cursor:pointer}.date-label{font-size:10px;fill:var(--muted)}
+  .filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end;margin-bottom:12px}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:15px;background:var(--card)}table{width:100%;min-width:720px;border-collapse:collapse}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;font-size:.9rem}th{background:rgba(100,116,139,.08);color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}tr:last-child td{border-bottom:0}.nowrap{white-space:nowrap}.muted{color:var(--muted)}.row-actions{display:flex;gap:7px;flex-wrap:wrap}.empty{text-align:center;color:var(--muted);padding:28px;display:none}.toast{position:fixed;right:18px;bottom:18px;background:var(--text);color:var(--card);padding:12px 14px;border-radius:14px;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s;z-index:20;max-width:min(420px,calc(100% - 36px));line-height:1.4}.toast.show{opacity:1;transform:translateY(0)}[hidden]{display:none!important}
+  @media(max-width:960px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:640px){
+    .shell{width:100%;padding:10px 8px calc(28px + env(safe-area-inset-bottom))}.topbar{flex-direction:column;align-items:stretch;gap:10px;margin-bottom:10px}.brand{gap:8px}.logo{width:36px;height:36px;border-radius:12px;font-size:19px}h1{font-size:1.1rem}.subtitle{font-size:.78rem;line-height:1.25}.user-chip{width:100%;justify-content:space-between;border-radius:18px;padding:7px;gap:7px}.avatar{width:26px;height:26px}.user-chip span{flex:1;min-width:0;max-width:none;font-size:.76rem}.user-chip .btn-small{padding:6px 9px;min-height:32px;font-size:.78rem;white-space:nowrap}
+    .layout{display:grid;grid-template-columns:1fr;gap:10px}.side,.main{display:contents}.stats{order:1;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.chart-card{order:2}.side>.card:first-child{order:3}.settings-card{order:4}.main>.card:last-child{order:5}.card{padding:12px;border-radius:15px;box-shadow:none}.section-title,.chart-head{margin-bottom:10px}h2{font-size:1rem}.small{font-size:.78rem}.form-grid,.settings-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.full{grid-column:1/-1}label{font-size:.72rem}input,textarea{min-height:38px;border-radius:10px;padding:8px 10px;font-size:.92rem}textarea{min-height:58px}.actions{gap:8px;margin-top:10px}.actions button{flex:1 1 0;min-height:40px}.hint{font-size:.76rem;padding:9px 10px}.stat-card{min-height:88px;padding:11px;border-radius:14px}.stat-label{font-size:.72rem}.stat-value{font-size:1.28rem;margin-top:5px}.stat-sub{font-size:.72rem}.badge{font-size:.68rem;padding:3px 7px;margin-top:6px}.chart-head{flex-direction:column;align-items:stretch}.chart-actions{justify-content:space-between}.range-toggle{flex:1}.range-btn{flex:1}.chart-wrap{min-height:360px}.trend-svg{height:350px}.chart-tooltip{font-size:.76rem;min-width:170px;max-width:260px}.filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.filters button{width:100%}.table-wrap{border:0;background:transparent;overflow:visible}table{min-width:0;border-collapse:separate;border-spacing:0 8px}thead{display:none}tbody,tr,td{display:block;width:100%}tr{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 10px}td{border-bottom:0;padding:5px 0;display:flex;justify-content:space-between;gap:12px;font-size:.83rem}td:nth-child(1)::before{content:"Date"}td:nth-child(2)::before{content:"Time"}td:nth-child(3)::before{content:"BP"}td:nth-child(4)::before{content:"Pulse"}td:nth-child(5)::before{content:"Weight"}td:nth-child(6)::before{content:"Notes"}td:nth-child(7)::before{content:"Actions"}td::before{color:var(--muted);font-weight:850}.row-actions{justify-content:flex-end}.toast{right:8px;bottom:calc(12px + env(safe-area-inset-bottom));max-width:calc(100% - 16px)}.login-card{margin:42px auto}
+  }
+</style>
+</head>
+<body>
+<main class="shell">
+  <section id="loginView" class="login-card card" hidden>
+    <div class="logo">♥</div><h2>BP & Weight Tracker</h2><p>Sign in with your allowed Google account. Your records are stored in your own Firestore user area.</p><button id="signInBtn" class="btn-primary">Sign in with Google</button>
+  </section>
+  <section id="blockedView" class="login-card card" hidden>
+    <div class="logo">!</div><h2>Access not allowed</h2><p>This Google account is not listed in allowedUsers.</p><p id="blockedEmail" class="badge neutral"></p><br><button id="blockedSignOutBtn" class="btn-secondary">Sign out</button>
+  </section>
+  <section id="appView" hidden>
+    <header class="topbar">
+      <div class="brand"><div class="logo">♥</div><div><h1>Blood Pressure & Weight Tracker</h1><p class="subtitle">Private per-user tracking with Firebase Google sign-in</p></div></div>
+      <div class="user-chip"><img id="userPhoto" class="avatar" alt="User"><span id="userEmail"></span><button id="themeToggleBtn" class="btn-ghost btn-small" type="button">Dark</button><button id="signOutBtn" class="btn-ghost btn-small" type="button">Sign out</button></div>
+    </header>
+    <div class="layout">
+      <div class="side">
+        <section class="card">
+          <div class="section-title"><div><h2 id="formTitle">Add record</h2><p class="small">Enter BP, weight, or both.</p></div></div>
+          <form id="recordForm">
+            <div class="form-grid">
+              <div class="field"><label for="dateInput">Date</label><input id="dateInput" type="date" required></div>
+              <div class="field"><label for="timeInput">Time</label><input id="timeInput" type="time" required></div>
+              <div class="field"><label for="sysInput">Systolic</label><input id="sysInput" type="number" inputmode="numeric" min="50" max="260" placeholder="120"></div>
+              <div class="field"><label for="diaInput">Diastolic</label><input id="diaInput" type="number" inputmode="numeric" min="30" max="180" placeholder="80"></div>
+              <div class="field"><label for="pulseInput">Pulse</label><input id="pulseInput" type="number" inputmode="numeric" min="30" max="220" placeholder="72"></div>
+              <div class="field"><label for="weightInput">Weight kg</label><input id="weightInput" type="number" inputmode="decimal" step="0.1" min="20" max="350" placeholder="70.5"></div>
+              <div class="field full"><label for="notesInput">Notes</label><textarea id="notesInput" maxlength="500" placeholder="Morning, before coffee, after exercise..."></textarea></div>
+            </div>
+            <div class="actions"><button id="saveBtn" type="submit" class="btn-primary">Save record</button><button id="cancelEditBtn" type="button" class="btn-secondary" hidden>Cancel edit</button></div>
+          </form>
+          <div class="hint">Tip: BP requires both systolic and diastolic values. Weight can be saved alone.</div>
+        </section>
+        <section class="card settings-card">
+          <div class="section-title"><div><h2>Threshold settings</h2><p class="small">Customize green / yellow / red BP limits.</p></div></div>
+          <p class="settings-note">Yellow and red limits are shown as dashed lines in the trend chart.</p>
+          <div class="settings-grid">
+            <div class="field"><label for="warnSysInput">Yellow systolic from</label><input id="warnSysInput" type="number" inputmode="numeric" min="80" max="250"></div>
+            <div class="field"><label for="warnDiaInput">Yellow diastolic from</label><input id="warnDiaInput" type="number" inputmode="numeric" min="40" max="180"></div>
+            <div class="field"><label for="redSysInput">Red systolic from</label><input id="redSysInput" type="number" inputmode="numeric" min="80" max="260"></div>
+            <div class="field"><label for="redDiaInput">Red diastolic from</label><input id="redDiaInput" type="number" inputmode="numeric" min="40" max="180"></div>
+          </div>
+          <div class="preview"><div><span class="dash warn"></span><span id="warnPreview"></span></div><div><span class="dash red"></span><span id="redPreview"></span></div></div>
+          <div class="actions"><button id="saveSettingsBtn" type="button" class="btn-primary btn-small">Save settings</button><button id="resetSettingsBtn" type="button" class="btn-secondary btn-small">Reset default</button></div>
+        </section>
+      </div>
+      <div class="main">
+        <section class="stats">
+          <div class="stat-card"><div class="stat-label">Latest BP</div><div id="latestBp" class="stat-value">--</div><div id="latestBpSub" class="stat-sub">No data yet</div><div id="latestBpBadge" class="badge neutral">Waiting</div></div>
+          <div class="stat-card"><div class="stat-label">Latest Weight</div><div id="latestWeight" class="stat-value">--</div><div id="latestWeightSub" class="stat-sub">No data yet</div></div>
+          <div class="stat-card"><div class="stat-label">7-Day Avg BP</div><div id="avgBp" class="stat-value">--</div><div id="avgBpSub" class="stat-sub">Based on recent records</div><div id="avgBpBadge" class="badge neutral">Waiting</div></div>
+          <div class="stat-card"><div class="stat-label">Records</div><div id="recordCount" class="stat-value">0</div><div id="recordCountSub" class="stat-sub">Saved records</div></div>
+        </section>
+        <section class="card chart-card">
+          <div class="chart-head"><div><h2>Trend</h2><p id="trendSubtitle" class="small">Last 7 days. Hover/click a point to view data.</p></div><div class="chart-actions"><div class="range-toggle" aria-label="Trend range"><button id="range7Btn" class="range-btn active" type="button">7 days</button><button id="range30Btn" class="range-btn" type="button">30 days</button></div><button id="exportBtn" class="btn-secondary btn-small" type="button">Export CSV</button></div></div>
+          <div id="chartWrap" class="chart-wrap"><div id="trendChart"></div><div id="chartTooltip" class="chart-tooltip" hidden></div></div>
+        </section>
+        <section class="card">
+          <div class="section-title"><div><h2>History</h2><p class="small">Filter, edit, or delete your records.</p></div></div>
+          <div class="filters">
+            <div class="field"><label for="fromFilter">From</label><input id="fromFilter" type="date"></div>
+            <div class="field"><label for="toFilter">To</label><input id="toFilter" type="date"></div>
+            <div class="field"><label>&nbsp;</label><button id="clearFilterBtn" class="btn-secondary" type="button">Clear filter</button></div>
+            <div class="field"><label>&nbsp;</label><button id="nowBtn" class="btn-ghost" type="button">Today/time now</button></div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Date</th><th>Time</th><th>BP</th><th>Pulse</th><th>Weight</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="recordsBody"></tbody></table><div id="emptyState" class="empty">No records to show.</div></div>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="toast" class="toast"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, deleteField, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = { apiKey:"AIzaSyAWPI2O-XhIaAEeREIzrx6iiVQ2-4enceY", authDomain:"bp-tracker-5ac4f.firebaseapp.com", projectId:"bp-tracker-5ac4f", storageBucket:"bp-tracker-5ac4f.firebasestorage.app", messagingSenderId:"695196646602", appId:"1:695196646602:web:4480d1c3ed3113a943c833" };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+const $ = id => document.getElementById(id);
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const THEME_KEY = "bpWeightTrackerTheme";
+const THRESHOLD_KEY = "bpWeightTrackerThresholds";
+const RANGE_KEY = "bpWeightTrendRangeDays";
+const DEFAULT_THRESHOLDS = { warningSys:130, warningDia:80, redSys:140, redDia:90 };
+let currentUser = null;
+let records = [];
+let editingId = null;
+let unsubscribeRecords = null;
+let unsubscribeSettings = null;
+let thresholds = { ...DEFAULT_THRESHOLDS };
+let trendDays = Number(localStorage.getItem(RANGE_KEY)) === 30 ? 30 : 7;
+let pointInfo = new Map();
+let pinned = false;
+
+const esc = (v="") => String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+const num = v => (v === "" || v === null || v === undefined) ? null : (Number.isFinite(Number(v)) ? Number(v) : null);
+const hasNum = v => Number.isFinite(Number(v));
+const val = v => Number(v);
+const sortDesc = (a,b) => `${b.date || ""} ${b.time || ""}`.localeCompare(`${a.date || ""} ${a.time || ""}`);
+const sortAsc = (a,b) => `${a.date || ""} ${a.time || ""}`.localeCompare(`${b.date || ""} ${b.time || ""}`);
+const localDate = (date = new Date()) => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0,10);
+const localTime = (date = new Date()) => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(11,16);
+const cutoffDate = days => localDate(new Date(Date.now() - (days - 1) * 86400000));
+const shortDate = d => { const p = String(d || "").split("-"); return p.length === 3 ? `${p[1]}/${p[2]}` : String(d || ""); };
+const views = { login:$("loginView"), blocked:$("blockedView"), app:$("appView") };
+function showView(name){ Object.entries(views).forEach(([k,e]) => e.hidden = k !== name); }
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2800); }
+function applyTheme(theme){ const safe = theme === "dark" ? "dark" : "light"; document.documentElement.dataset.theme = safe; localStorage.setItem(THEME_KEY,safe); $("themeToggleBtn") && ($("themeToggleBtn").textContent = safe === "dark" ? "Light" : "Dark"); requestAnimationFrame(renderChart); }
+function setDefaults(){ $("dateInput").value = localDate(); $("timeInput").value = localTime(); }
+function recCol(){ return collection(db,"users",currentUser.uid,"healthRecords"); }
+function recDoc(id){ return doc(db,"users",currentUser.uid,"healthRecords",id); }
+function settingsDoc(){ return doc(db,"users",currentUser.uid,"settings","display"); }
+
+function cleanThresholds(t){
+  const next = { warningSys:Number(t?.warningSys), warningDia:Number(t?.warningDia), redSys:Number(t?.redSys), redDia:Number(t?.redDia) };
+  if(!Object.values(next).every(Number.isFinite)) throw Error("Please fill all threshold values.");
+  if(next.warningSys < 80 || next.warningSys > 250) throw Error("Yellow systolic must be 80–250.");
+  if(next.redSys < 80 || next.redSys > 260) throw Error("Red systolic must be 80–260.");
+  if(next.warningDia < 40 || next.warningDia > 180) throw Error("Yellow diastolic must be 40–180.");
+  if(next.redDia < 40 || next.redDia > 180) throw Error("Red diastolic must be 40–180.");
+  if(next.warningSys >= next.redSys) throw Error("Yellow systolic must be lower than red systolic.");
+  if(next.warningDia >= next.redDia) throw Error("Yellow diastolic must be lower than red diastolic.");
+  return next;
+}
+function localThresholds(){ try { return cleanThresholds(JSON.parse(localStorage.getItem(THRESHOLD_KEY)) || DEFAULT_THRESHOLDS); } catch { return { ...DEFAULT_THRESHOLDS }; } }
+function setThresholdInputs(){
+  $("warnSysInput").value = thresholds.warningSys; $("warnDiaInput").value = thresholds.warningDia; $("redSysInput").value = thresholds.redSys; $("redDiaInput").value = thresholds.redDia;
+  $("warnPreview").textContent = `Yellow from ${thresholds.warningSys}/${thresholds.warningDia}`; $("redPreview").textContent = `Red from ${thresholds.redSys}/${thresholds.redDia}`;
+}
+function readThresholdInputs(){ return cleanThresholds({ warningSys:$("warnSysInput").value, warningDia:$("warnDiaInput").value, redSys:$("redSysInput").value, redDia:$("redDiaInput").value }); }
+function classify(sys,dia){ if(!hasNum(sys)||!hasNum(dia)) return {text:"No BP",type:"neutral"}; const s=val(sys),d=val(dia); if(s>=thresholds.redSys || d>=thresholds.redDia) return {text:"High",type:"danger"}; if(s>=thresholds.warningSys || d>=thresholds.warningDia) return {text:"Warning",type:"warn"}; return {text:"OK",type:"ok"}; }
+function metricClass(t){ return t === "ok" ? "metric-ok" : t === "warn" ? "metric-warn" : t === "danger" ? "metric-danger" : "metric-neutral"; }
+async function loadSettings(){
+  thresholds = localThresholds(); setThresholdInputs();
+  if(unsubscribeSettings) unsubscribeSettings();
+  unsubscribeSettings = onSnapshot(settingsDoc(), snap => {
+    if(snap.exists() && snap.data().bpThresholds){
+      try { thresholds = cleanThresholds(snap.data().bpThresholds); localStorage.setItem(THRESHOLD_KEY,JSON.stringify(thresholds)); setThresholdInputs(); renderAll(); } catch(e){ console.warn(e); }
+    }
+  }, err => console.warn("Settings sync unavailable", err));
+}
+async function saveSettings(next){ thresholds = cleanThresholds(next); localStorage.setItem(THRESHOLD_KEY,JSON.stringify(thresholds)); setThresholdInputs(); renderAll(); if(currentUser){ await setDoc(settingsDoc(), { bpThresholds:thresholds, updatedAt:serverTimestamp() }, { merge:true }); } }
+
+function filteredRecords(){ const from=$("fromFilter").value, to=$("toFilter").value; return records.filter(r => !from || (r.date||"") >= from).filter(r => !to || (r.date||"") <= to).sort(sortDesc); }
+function trendRecords(){ const cut = cutoffDate(trendDays); return filteredRecords().filter(r => (r.date || "") >= cut).sort(sortAsc); }
+function renderStats(){
+  const all=[...records].sort(sortDesc), bp=all.filter(r=>hasNum(r.systolic)&&hasNum(r.diastolic)), w=all.filter(r=>hasNum(r.weightKg));
+  $("recordCount").textContent=all.length; $("recordCountSub").textContent=all.length===1?"Saved record":"Saved records";
+  if(bp.length){ const r=bp[0], st=classify(r.systolic,r.diastolic); $("latestBp").textContent=`${val(r.systolic)}/${val(r.diastolic)}`; $("latestBp").className=`stat-value ${metricClass(st.type)}`; $("latestBpSub").textContent=`${r.date} ${r.time||""}`; $("latestBpBadge").textContent=st.text; $("latestBpBadge").className=`badge ${st.type}`; }
+  else { $("latestBp").textContent="--"; $("latestBp").className="stat-value metric-neutral"; $("latestBpSub").textContent="No data yet"; $("latestBpBadge").textContent="Waiting"; $("latestBpBadge").className="badge neutral"; }
+  if(w.length){ const r=w[0]; $("latestWeight").textContent=`${val(r.weightKg).toFixed(1)} kg`; $("latestWeightSub").textContent=`${r.date} ${r.time||""}`; } else { $("latestWeight").textContent="--"; $("latestWeightSub").textContent="No data yet"; }
+  const cut = cutoffDate(7), recent = bp.filter(r => (r.date||"") >= cut);
+  if(recent.length){ const avgS=Math.round(recent.reduce((s,r)=>s+val(r.systolic),0)/recent.length), avgD=Math.round(recent.reduce((s,r)=>s+val(r.diastolic),0)/recent.length), st=classify(avgS,avgD); $("avgBp").textContent=`${avgS}/${avgD}`; $("avgBp").className=`stat-value ${metricClass(st.type)}`; $("avgBpSub").textContent=`${recent.length} BP record${recent.length>1?"s":""} in last 7 days`; $("avgBpBadge").textContent=st.text; $("avgBpBadge").className=`badge ${st.type}`; }
+  else { $("avgBp").textContent="--"; $("avgBp").className="stat-value metric-neutral"; $("avgBpSub").textContent="No BP records in last 7 days"; $("avgBpBadge").textContent="Waiting"; $("avgBpBadge").className="badge neutral"; }
+}
+function pointHtml(r,label,value){ const bp = hasNum(r.systolic)&&hasNum(r.diastolic) ? `${val(r.systolic)}/${val(r.diastolic)} (${classify(r.systolic,r.diastolic).text})` : "--"; return `<strong>${esc(label)}: ${esc(value)}</strong><div>${esc(r.date||"")} ${esc(r.time||"")}</div><div>BP: ${esc(bp)}</div><div>Pulse: ${hasNum(r.pulse)?esc(val(r.pulse)):"--"}</div><div>Weight: ${hasNum(r.weightKg)?esc(val(r.weightKg).toFixed(1)+" kg"):"--"}</div>${r.notes?`<div>Notes: ${esc(r.notes)}</div>`:""}`; }
+function showTip(evt,html,pin=false){ const tip=$("chartTooltip"), wrap=$("chartWrap"), r=wrap.getBoundingClientRect(); tip.innerHTML=html; tip.hidden=false; tip.classList.add("show"); const x=evt.clientX-r.left, y=evt.clientY-r.top; tip.style.left=`${Math.max(105,Math.min(x,r.width-105))}px`; tip.style.top=`${Math.max(70,y)}px`; if(pin) pinned=true; }
+function hideTip(force=false){ if(pinned&&!force) return; const tip=$("chartTooltip"); tip.classList.remove("show"); tip.hidden=true; if(force) pinned=false; }
+function smoothPath(points){
+  if(points.length < 2) return points.length ? `M ${points[0].x} ${points[0].y}` : "";
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for(let i=0;i<points.length-1;i++){
+    const p0 = points[i-1] || points[i], p1 = points[i], p2 = points[i+1], p3 = points[i+2] || p2;
+    const cp1x = p1.x + (p2.x - p0.x) / 6, cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6, cp2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  }
+  return d;
+}
+function renderChart(){
+  const chart=$("trendChart"), wrap=$("chartWrap"); hideTip(true); pointInfo = new Map();
+  const data = trendRecords(); $("trendSubtitle").textContent = `Last ${trendDays} days. Hover/click a point to view data.`;
+  $("range7Btn").classList.toggle("active", trendDays===7); $("range30Btn").classList.toggle("active", trendDays===30);
+  if(!data.length){ chart.innerHTML=`<div class="chart-empty">No records in the last ${trendDays} days.<br>Add a record, choose 30 days, or clear the date filter.</div>`; return; }
+  const vals=[]; data.forEach(r=>[r.systolic,r.diastolic,r.weightKg].forEach(v=>{ if(hasNum(v)) vals.push(val(v)); })); [thresholds.warningSys,thresholds.warningDia,thresholds.redSys,thresholds.redDia].forEach(v=>vals.push(v));
+  if(!vals.length){ chart.innerHTML='<div class="chart-empty">No numeric values to draw.</div>'; return; }
+  const C={sys:css("--chartSys"),dia:css("--chartDia"),wgt:css("--chartWgt"),text:css("--text"),muted:css("--muted"),line:css("--line"),card:css("--card"),warn:css("--warn"),red:css("--danger")};
+  const width=Math.max(340, Math.floor(wrap.clientWidth || 700)), height=390, plot={l:56,r:28,t:82,b:92}, pw=width-plot.l-plot.r, ph=height-plot.t-plot.b;
+  const minRaw=Math.min(...vals), maxRaw=Math.max(...vals), pad=Math.max(8, Math.round(((maxRaw-minRaw)||40)*.12));
+  const minY=Math.max(0, Math.floor((minRaw-pad)/5)*5), maxY=Math.ceil((maxRaw+pad)/5)*5, range=Math.max(1,maxY-minY);
+  const x=i => data.length===1 ? plot.l+pw/2 : plot.l + i/(data.length-1)*pw;
+  const y=v => plot.t + (maxY-v)/range*ph;
+  const grid = Array.from({length:6},(_,i)=>{ const vv=Math.round(maxY-range/5*i), yy=y(vv); return `<line x1="${plot.l}" y1="${yy}" x2="${width-plot.r}" y2="${yy}" stroke="${C.line}"/><text x="${plot.l-10}" y="${yy+4}" text-anchor="end" fill="${C.muted}" font-size="11">${vv}</text>`; }).join("");
+  const legend = `<g><circle cx="${plot.l}" cy="23" r="5" fill="${C.sys}"/><text x="${plot.l+14}" y="27" fill="${C.text}" font-size="12" font-weight="800">Systolic</text><circle cx="${plot.l+112}" cy="23" r="5" fill="${C.dia}"/><text x="${plot.l+126}" y="27" fill="${C.text}" font-size="12" font-weight="800">Diastolic</text><circle cx="${plot.l+226}" cy="23" r="5" fill="${C.wgt}"/><text x="${plot.l+240}" y="27" fill="${C.text}" font-size="12" font-weight="800">Weight</text><line x1="${plot.l}" y1="48" x2="${plot.l+34}" y2="48" stroke="${C.warn}" stroke-width="2" stroke-dasharray="7 5"/><text x="${plot.l+43}" y="52" fill="${C.muted}" font-size="11">Yellow ${thresholds.warningSys}/${thresholds.warningDia}</text><line x1="${plot.l+186}" y1="48" x2="${plot.l+220}" y2="48" stroke="${C.red}" stroke-width="2" stroke-dasharray="7 5"/><text x="${plot.l+229}" y="52" fill="${C.muted}" font-size="11">Red ${thresholds.redSys}/${thresholds.redDia}</text></g>`;
+  const thLines = [
+    {v:thresholds.warningSys,l:`Y SYS ${thresholds.warningSys}`,c:C.warn},{v:thresholds.warningDia,l:`Y DIA ${thresholds.warningDia}`,c:C.warn},
+    {v:thresholds.redSys,l:`R SYS ${thresholds.redSys}`,c:C.red},{v:thresholds.redDia,l:`R DIA ${thresholds.redDia}`,c:C.red}
+  ].map((t,i)=>{ const yy=y(t.v), ly=Math.max(plot.t+10, Math.min(yy-5+(i%2)*13, plot.t+ph-4)); return `<line x1="${plot.l}" y1="${yy}" x2="${width-plot.r}" y2="${yy}" stroke="${t.c}" stroke-width="1.7" stroke-dasharray="8 6" opacity=".75"/><text x="${width-plot.r-5}" y="${ly}" text-anchor="end" fill="${t.c}" font-size="10" font-weight="800">${esc(t.l)}</text>`; }).join("");
+  const dateLabels = data.map((r,i)=>{ const xx=x(i), yy=plot.t+ph; const yText = yy + 19 + (i%2)*13; return `<line x1="${xx}" y1="${yy}" x2="${xx}" y2="${yy+5}" stroke="${C.line}"/><text class="date-label" x="${xx}" y="${yText}" transform="rotate(50 ${xx} ${yText})" text-anchor="start">${esc(shortDate(r.date))}</text>`; }).join("");
+  function series(key,label,color,fmt){ const pts=data.map((r,i)=>({r,i,v:val(r[key])})).filter(p=>Number.isFinite(p.v)); if(!pts.length) return ""; const coords=pts.map(p=>({x:x(p.i),y:y(p.v),p})); const path=smoothPath(coords); const hits=coords.map(({x:xx,y:yy,p})=>{ const id=`${key}-${p.r.id||p.i}-${p.i}`, display=fmt(p.v); pointInfo.set(id,pointHtml(p.r,label,display)); return `<g class="point-hit" data-id="${esc(id)}" tabindex="0" role="button"><title>${esc(label)} ${esc(display)} | ${esc(p.r.date||"")} ${esc(p.r.time||"")}</title><circle cx="${xx}" cy="${yy}" r="14" fill="transparent"/><circle cx="${xx}" cy="${yy}" r="4.8" fill="${color}" stroke="${C.card}" stroke-width="1.8"/></g>`; }).join(""); return `<path d="${path}" fill="none" stroke="${color}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>${hits}`; }
+  chart.innerHTML = `<svg class="trend-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">${legend}${grid}<line x1="${plot.l}" y1="${plot.t+ph}" x2="${width-plot.r}" y2="${plot.t+ph}" stroke="${C.line}"/>${thLines}${series("systolic","Systolic",C.sys,v=>Math.round(v))}${series("diastolic","Diastolic",C.dia,v=>Math.round(v))}${series("weightKg","Weight",C.wgt,v=>Number(v).toFixed(1)+" kg")}${dateLabels}</svg>`;
+}
+function renderTable(){ const body=$("recordsBody"), data=filteredRecords(); body.innerHTML=data.map(r=>{ const hasBp=hasNum(r.systolic)&&hasNum(r.diastolic), st=hasBp?classify(r.systolic,r.diastolic):{type:"neutral"}; return `<tr><td class="nowrap">${esc(r.date)}</td><td class="nowrap">${esc(r.time||"")}</td><td class="nowrap">${hasBp?`<strong class="metric-value ${metricClass(st.type)}">${esc(val(r.systolic))}/${esc(val(r.diastolic))}</strong>`:`<span class="muted">--</span>`}</td><td>${hasNum(r.pulse)?esc(val(r.pulse)):`<span class="muted">--</span>`}</td><td class="nowrap">${hasNum(r.weightKg)?esc(val(r.weightKg).toFixed(1)+" kg"):`<span class="muted">--</span>`}</td><td>${esc(r.notes||"")}</td><td><div class="row-actions"><button class="btn-secondary btn-small" data-action="edit" data-id="${esc(r.id)}">Edit</button><button class="btn-danger btn-small" data-action="delete" data-id="${esc(r.id)}">Delete</button></div></td></tr>`; }).join(""); $("emptyState").style.display=data.length?"none":"block"; }
+function renderAll(){ renderStats(); renderTable(); renderChart(); }
+function resetForm(){ editingId=null; $("formTitle").textContent="Add record"; $("saveBtn").textContent="Save record"; $("cancelEditBtn").hidden=true; $("recordForm").reset(); setDefaults(); }
+function startEdit(id){ const r=records.find(x=>x.id===id); if(!r)return; editingId=id; $("formTitle").textContent="Edit record"; $("saveBtn").textContent="Update record"; $("cancelEditBtn").hidden=false; $("dateInput").value=r.date||localDate(); $("timeInput").value=r.time||localTime(); $("sysInput").value=hasNum(r.systolic)?r.systolic:""; $("diaInput").value=hasNum(r.diastolic)?r.diastolic:""; $("pulseInput").value=hasNum(r.pulse)?r.pulse:""; $("weightInput").value=hasNum(r.weightKg)?r.weightKg:""; $("notesInput").value=r.notes||""; window.scrollTo({top:0,behavior:"smooth"}); }
+async function deleteRecord(id){ const r=records.find(x=>x.id===id); if(!confirm(`Delete ${r?`${r.date} ${r.time||""}`:"this record"}?`)) return; await deleteDoc(recDoc(id)); toast("Record deleted."); }
+function payload(){ const systolic=num($("sysInput").value), diastolic=num($("diaInput").value), pulse=num($("pulseInput").value), weightKg=num($("weightInput").value), anyBp=systolic!==null||diastolic!==null, fullBp=systolic!==null&&diastolic!==null, hasWeight=weightKg!==null; if(anyBp&&!fullBp) throw Error("Please enter both systolic and diastolic BP."); if(!fullBp&&!hasWeight) throw Error("Please enter BP, weight, or both."); const p={ date:$("dateInput").value, time:$("timeInput").value, notes:$("notesInput").value.trim(), ownerUid:currentUser.uid, ownerEmail:currentUser.email, updatedAt:serverTimestamp() }; if(fullBp){ p.systolic=systolic; p.diastolic=diastolic; } else if(editingId){ p.systolic=deleteField(); p.diastolic=deleteField(); } if(pulse!==null)p.pulse=pulse; else if(editingId)p.pulse=deleteField(); if(hasWeight)p.weightKg=weightKg; else if(editingId)p.weightKg=deleteField(); return p; }
+async function saveRecord(e){ e.preventDefault(); try{ $("saveBtn").disabled=true; const p=payload(); if(editingId){ await updateDoc(recDoc(editingId),p); toast("Record updated."); } else { p.createdAt=serverTimestamp(); await addDoc(recCol(),p); toast("Record saved."); } resetForm(); } catch(err){ console.error(err); toast(err.message||"Could not save record."); } finally { $("saveBtn").disabled=false; } }
+function exportCsv(){ const data=filteredRecords(); if(!data.length){ toast("No records to export."); return; } const headers=["date","time","systolic","diastolic","pulse","weightKg","notes"], rows=data.map(r=>headers.map(h=>`"${String(r[h]??"").replaceAll('"','""')}"`).join(",")); const blob=new Blob(["\uFEFF"+headers.join(",")+"\n"+rows.join("\n")],{type:"text/csv;charset=utf-8"}); const url=URL.createObjectURL(blob), a=document.createElement("a"); a.href=url; a.download=`bp_weight_records_${localDate()}.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+function listenRecords(){ if(unsubscribeRecords) unsubscribeRecords(); unsubscribeRecords = onSnapshot(recCol(), snap => { records = snap.docs.map(d=>({id:d.id,...d.data()})).sort(sortDesc).slice(0,700); renderAll(); }, err => { console.error(err); toast("Cannot load records. Check Firestore rules and allowedUsers."); }); }
+async function checkUser(user){ const email=user.email||""; const allowSnap=await getDoc(doc(db,"allowedUsers",email)); if(!allowSnap.exists()){ if(unsubscribeRecords) unsubscribeRecords(); if(unsubscribeSettings) unsubscribeSettings(); $("blockedEmail").textContent=email||"No email found"; showView("blocked"); return; } currentUser=user; $("userEmail").textContent=email; $("userPhoto").src=user.photoURL||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='32' fill='%23dbeafe'/%3E%3Ctext x='50%25' y='56%25' text-anchor='middle' font-size='28' fill='%232563eb' font-family='Arial'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E"; showView("app"); resetForm(); await loadSettings(); listenRecords(); }
+async function doSignOut(){ if(unsubscribeRecords) unsubscribeRecords(); if(unsubscribeSettings) unsubscribeSettings(); unsubscribeRecords=null; unsubscribeSettings=null; currentUser=null; records=[]; await signOut(auth); showView("login"); }
+function setTrendDays(days){ trendDays = days === 30 ? 30 : 7; localStorage.setItem(RANGE_KEY,String(trendDays)); renderChart(); }
+
+$("signInBtn").onclick = () => signInWithPopup(auth, provider).catch(e => { console.error(e); toast(e.message||"Google sign-in failed."); });
+$("signOutBtn").onclick = doSignOut; $("blockedSignOutBtn").onclick = doSignOut; $("themeToggleBtn").onclick = () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+$("recordForm").onsubmit = saveRecord; $("cancelEditBtn").onclick = resetForm; $("exportBtn").onclick = exportCsv; $("nowBtn").onclick = setDefaults;
+$("clearFilterBtn").onclick = () => { $("fromFilter").value=""; $("toFilter").value=""; renderAll(); }; $("fromFilter").onchange = renderAll; $("toFilter").onchange = renderAll;
+$("range7Btn").onclick = () => setTrendDays(7); $("range30Btn").onclick = () => setTrendDays(30);
+$("saveSettingsBtn").onclick = async () => { try{ $("saveSettingsBtn").disabled=true; await saveSettings(readThresholdInputs()); toast("Settings saved."); } catch(e){ console.error(e); toast(e.message||"Could not save settings."); } finally { $("saveSettingsBtn").disabled=false; } };
+$("resetSettingsBtn").onclick = async () => { try{ await saveSettings({...DEFAULT_THRESHOLDS}); toast("Default thresholds restored."); } catch(e){ console.error(e); toast(e.message||"Could not reset settings."); } };
+["warnSysInput","warnDiaInput","redSysInput","redDiaInput"].forEach(id => $(id).addEventListener("input", () => { try{ const t=readThresholdInputs(); $("warnPreview").textContent=`Yellow from ${t.warningSys}/${t.warningDia}`; $("redPreview").textContent=`Red from ${t.redSys}/${t.redDia}`; }catch{} }));
+$("recordsBody").onclick = e => { const b=e.target.closest("button[data-action]"); if(!b)return; const {action,id}=b.dataset; (action === "edit" ? Promise.resolve(startEdit(id)) : deleteRecord(id)).catch(err=>{ console.error(err); toast("Action failed."); }); };
+$("trendChart").addEventListener("mousemove", e => { const g=e.target.closest(".point-hit"); if(!g || pinned) return; const h=pointInfo.get(g.dataset.id); if(h) showTip(e,h,false); });
+$("trendChart").addEventListener("mouseleave", () => hideTip(false));
+$("trendChart").addEventListener("click", e => { const g=e.target.closest(".point-hit"); if(!g){ hideTip(true); return; } const h=pointInfo.get(g.dataset.id); if(h) showTip(e,h,true); });
+$("trendChart").addEventListener("focusin", e => { const g=e.target.closest(".point-hit"); if(!g) return; const rect=g.getBoundingClientRect(); const h=pointInfo.get(g.dataset.id); if(h) showTip({clientX:rect.left+rect.width/2,clientY:rect.top+rect.height/2},h,true); });
+document.addEventListener("click", e => { if(!e.target.closest("#chartWrap")) hideTip(true); });
+window.addEventListener("resize", () => requestAnimationFrame(renderChart));
+onAuthStateChanged(auth, user => { if(!user){ if(unsubscribeRecords) unsubscribeRecords(); if(unsubscribeSettings) unsubscribeSettings(); showView("login"); return; } checkUser(user).catch(e=>{ console.error(e); toast("Access check failed. Check rules and allowedUsers setup."); showView("login"); }); });
+
+applyTheme(localStorage.getItem(THEME_KEY)||"light"); thresholds = localThresholds(); setThresholdInputs(); setDefaults(); showView("login");
+</script>
+</body>
+</html>
